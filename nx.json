@@ -29,6 +29,15 @@
   "projects": {
     "gateway": {
       "tags": []
+    },
+    "payment-service": {
+      "tags": []
+    },
+    "trip-service": {
+      "tags": []
+    },
+    "user-service": {
+      "tags": []
     }
   }
 }

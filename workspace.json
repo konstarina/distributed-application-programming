@@ -51,6 +51,159 @@
           }
         }
       }
+    },
+    "payment-service": {
+      "root": "apps/payment-service",
+      "sourceRoot": "apps/payment-service/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/payment-service",
+            "main": "apps/payment-service/src/main.ts",
+            "tsConfig": "apps/payment-service/tsconfig.app.json",
+            "assets": ["apps/payment-service/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/payment-service/src/environments/environment.ts",
+                  "with": "apps/payment-service/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "payment-service:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/payment-service/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/payment-service"],
+          "options": {
+            "jestConfig": "apps/payment-service/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "trip-service": {
+      "root": "apps/trip-service",
+      "sourceRoot": "apps/trip-service/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/trip-service",
+            "main": "apps/trip-service/src/main.ts",
+            "tsConfig": "apps/trip-service/tsconfig.app.json",
+            "assets": ["apps/trip-service/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/trip-service/src/environments/environment.ts",
+                  "with": "apps/trip-service/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "trip-service:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/trip-service/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/trip-service"],
+          "options": {
+            "jestConfig": "apps/trip-service/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "user-service": {
+      "root": "apps/user-service",
+      "sourceRoot": "apps/user-service/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/user-service",
+            "main": "apps/user-service/src/main.ts",
+            "tsConfig": "apps/user-service/tsconfig.app.json",
+            "assets": ["apps/user-service/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/user-service/src/environments/environment.ts",
+                  "with": "apps/user-service/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "user-service:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/user-service/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/user-service"],
+          "options": {
+            "jestConfig": "apps/user-service/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   },
   "cli": {
