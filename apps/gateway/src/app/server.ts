@@ -34,10 +34,7 @@ class Server {
     this.app.post('/api/register-service', (req, res) => {
       const { serviceUri, serviceName } = req.body;
 
-      const serviceList: Set<string> = this.services.get(serviceName) || new Set();
-      serviceList.add(serviceUri);
-
-      this.services.set(serviceName, serviceList);
+      this.addService(serviceName, serviceUri);
 
       res.json({ success: true });
       console.log('Service registered successfully');
@@ -70,14 +67,7 @@ class Server {
       },
       onError: (err, req, res, target: any) => {
         const serviceUrlToRemove = `${target.protocol}//${target.host}`;
-
-        for (const [_, serviceList] of this.services) {
-          for (const uri of serviceList) {
-            if (uri === serviceUrlToRemove) {
-              serviceList.delete(uri);
-            }
-          }
-        }
+        this.removeService(serviceUrlToRemove);
       }
     });
   }
@@ -86,16 +76,39 @@ class Server {
     const runHealthCheck = () => {
       this.services.forEach(async (list) => {
         list.forEach(async (uri) => {
-          const response = await axios.get(`${uri}/api/status`);
-  
-          if (response.data !== 'OK') {
-            // TODO mark this service as not available
+
+          try {
+            const response = await axios.get(`${uri}/api/status`);
+    
+            if (response.data !== 'OK') {
+              throw new Error('Service is not responding');
+            }
+          } catch (error) {
+            console.log(error.message, uri);
+            this.removeService(uri);
           }
         });
       });
     }
 
     setInterval(runHealthCheck, 5000);
+  }
+
+  private addService(serviceName: string, serviceUri: string) {
+    const serviceList: Set<string> = this.services.get(serviceName) || new Set();
+    serviceList.add(serviceUri);
+
+    this.services.set(serviceName, serviceList);
+  }
+
+  private removeService(serviceUri: string) {
+    for (const [_, serviceList] of this.services) {
+      for (const uri of serviceList) {
+        if (uri === serviceUri) {
+          serviceList.delete(uri);
+        }
+      }
+    }
   }
 
 }

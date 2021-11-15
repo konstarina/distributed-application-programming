@@ -1,31 +1,11 @@
-import axios from 'axios';
-import * as express from 'express';
 import { Database } from '.';
-
+import { BaseServer } from '@lab-pad/shared';
 
 const PORT = process.env.PORT || 3000;
-const GATEWAY_URI = process.env.GATEWAY_URI || 'http://localhost:3333';
 
-class Server {
+class Server extends BaseServer {
 
-  app = express();
-
-  async init() {
-    this.addListeners();
-
-    this.app.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
-    });
-    this.app.on('error', console.error);
-
-    await this.registerItself();
-  }
-
-  private addListeners() {
-    this.app.get('/api/status', (req, res) => {
-      res.send('OK');
-    });
-
+  addListeners() {
     this.app.post('/api/payment/register-intent', async (req, res) => {
       const { fingerprint, amount, currency, userId } = req.body as any;
       if (!fingerprint || !amount || !currency || !userId) {
@@ -68,29 +48,8 @@ class Server {
       return this.sendOk(res, user);
     });
   }
-
-  private registerItself() {
-    return axios.post(`${GATEWAY_URI}/api/register-service`, {
-      serviceName: 'user-service',
-      serviceUri: `http://localhost:${PORT}`
-    });
-  }
-
-  private sendOk(res: express.Response, data?: any) {
-    res.json({
-      success: true,
-      data
-    });
-  }
-
-  private sendFail(res: express.Response, data?: any) {
-    res.status(400).json({
-      success: false,
-      data
-    });
-  }
 }
 
-const instance = new Server();
+const instance = new Server('payment-service', PORT);
 
 export { instance as Server };

@@ -12,7 +12,7 @@ class Database {
 
   async init() {
     await this.client.connect();
-    console.log('Connected successfully to server');
+    console.log('Connected successfully to database');
   }
 
   async registerPaymentIntent(intent: {

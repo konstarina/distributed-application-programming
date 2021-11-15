@@ -15,19 +15,22 @@ class Database {
     console.log('Connected successfully to database');
   }
 
-  async addUser(user: {
-    name: string;
-    phoneNumber: string;
+  async pushLocation(payload: {
+    driverId: string;
+    lat: number;
+    lon: number;
   }) {
-    const collection = this.db.collection('users');
-    const doc = await collection.insertOne(user);
+    const collection = this.db.collection('location');
+    const doc = await collection.insertOne({ ...payload, createdAt: new Date()});
 
     return collection.findOne({ _id: doc.insertedId });
   }
 
-  async findUser(criteria: { name?: string; phoneNumber?: string}) {
-    const collection = this.db.collection('users');
-    return collection.findOne(criteria);
+  async getDriverLocation(driverId: string) {
+    const collection = this.db.collection('location');
+    return collection.findOne({
+      driverId
+    }, { sort: { createdAt: -1 } });
   }
 
 }
