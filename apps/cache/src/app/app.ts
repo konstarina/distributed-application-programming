@@ -3,11 +3,13 @@ import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 
 const PORT = process.env.PORT || 4444;
+const CACHE_TTL = 5000; // 5 seconds;
 
 
 export class App {
   app = express();
   cache = new Map<string, any>();
+  cacheTTL = new Map<string, number>();
 
   init() {
     this.app.use(morgan('tiny'));
@@ -22,12 +24,22 @@ export class App {
     this.app.on('error', console.error);
 
     this.app.get('/get', (req, res) => {
-      const val = this.cache.get(req.query.key as string);
-      res.json({ data: val });
+      const key = req.query.key as string;
+
+      const val = this.cache.get(key);
+      const expireDate = this.cacheTTL.get(key) || -1;
+      if (expireDate < Date.now()) {
+        this.cacheTTL.delete(key);
+        this.cache.delete(key);
+        return res.json({ data: null, expired: true });
+      }
+
+      res.json({ data: val, expired: false });
     });
 
     this.app.post('/set', (req, res) => {
       this.cache.set(req.body.key, req.body.value);
+      this.cacheTTL.set(req.body.key, Date.now() + CACHE_TTL);
       res.send('OK');
     });
 
