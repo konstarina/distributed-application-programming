@@ -9,3 +9,5 @@ async function init() {
 
 
 init();
+
+console.log(process.env);

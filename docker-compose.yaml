@@ -5,9 +5,87 @@ services:
   mongo:
     image: mongo:5.0.3
     container_name: lab1-mongo
-    restart: unless-stopped	
+    restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
       - "27017:27017"
+
+
+  cache:
+    container_name: lab1-cache
+    build:
+      context: .
+      dockerfile: Dockerfile.cache
+    ports:
+      - 4444:4444
+    environment:
+      PORT: 4444
+    depends_on:
+      - mongo
+
+  gateway:
+    container_name: lab1-gateway
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    ports:
+      - 3333:3333
+    environment:
+      PORT: 3333
+      CACHE_URI: http://cache:4444
+    depends_on:
+      - mongo
+      - cache
+
+  user-service:
+    container_name: lab1-user-service
+    build:
+      context: .
+      dockerfile: Dockerfile.user-service
+    ports:
+      - 3000:3000
+    environment:
+      PORT: 3000
+      MONGO_URL: mongo
+      GATEWAY_URI: http://gateway:3333
+      SELF_NAME: user-service
+    depends_on:
+      - mongo
+      - cache
+      - gateway
+
+  trip-service:
+    container_name: lab1-trip-service
+    build:
+      context: .
+      dockerfile: Dockerfile.trip-service
+    ports:
+      - 3001:3001
+    environment:
+      PORT: 3001
+      MONGO_URL: mongo
+      GATEWAY_URI: http://gateway:3333
+      SELF_NAME: trip-service
+    depends_on:
+      - mongo
+      - cache
+      - gateway
+
+  payment-service:
+    container_name: lab1-payment-service
+    build:
+      context: .
+      dockerfile: Dockerfile.payment-service
+    ports:
+      - 3002:3002
+    environment:
+      PORT: 3002
+      MONGO_URL: mongo
+      GATEWAY_URI: http://gateway:3333
+      SELF_NAME: payment-service
+    depends_on:
+      - mongo
+      - cache
+      - gateway

@@ -6,6 +6,7 @@ import * as bodyParser from 'body-parser';
 
 
 const GATEWAY_URI = process.env.GATEWAY_URI || 'http://localhost:3333';
+const SELF_NAME = process.env.SELF_NAME || 'localhost';
 
 export class BaseServer {
   private concurrencyManager = new Concurrency(5);
@@ -67,7 +68,7 @@ export class BaseServer {
   private registerItself() {
     return axios.post(`${GATEWAY_URI}/api/register-service`, {
       serviceName: this.serviceName,
-      serviceUri: `http://localhost:${this.port}`
+      serviceUri: `http://${SELF_NAME}:${this.port}`
     });
   }
 
