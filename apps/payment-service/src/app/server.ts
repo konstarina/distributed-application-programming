@@ -24,7 +24,7 @@ class Server extends BaseServer {
       return this.sendOk(res, user);
     });
 
-    this.app.post('/api/payment/confirm', (req, res) => {
+    this.app.post('/api/payment/confirm', async (req, res) => {
       const { intentId, paymentStatus } = req.body;
       if (!intentId || !paymentStatus) {
         return this.sendFail(res, {
@@ -32,11 +32,11 @@ class Server extends BaseServer {
         });
       }
 
-      const user = Database.updateIntentStatus(intentId, paymentStatus);
-      return this.sendOk(res, user);
+      const status = await Database.updateIntentStatus(intentId, paymentStatus);
+      return this.sendOk(res, status);
     });
 
-    this.app.get('/api/payment/intent', (req, res) => {
+    this.app.get('/api/payment/intent', async (req, res) => {
       const { intentId } = req.body;
       if (!intentId) {
         return this.sendFail(res, {
@@ -44,8 +44,8 @@ class Server extends BaseServer {
         });
       }
 
-      const user = Database.findPaymentIntent(intentId);
-      return this.sendOk(res, user);
+      const intent = await Database.findPaymentIntent(intentId);
+      return this.sendOk(res, intent);
     });
   }
 }

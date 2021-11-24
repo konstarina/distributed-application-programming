@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const uri = 'mongodb://admin:pass@localhost:27017/payment-service?maxPoolSize=20&w=majority&authSource=admin';
 
@@ -33,14 +33,14 @@ class Database {
 
   async updateIntentStatus(intentId: string, status: string) {
     const collection = this.db.collection('intents');
-    collection.updateOne({ _id: intentId }, { $set: { status } });
+    await collection.updateOne({ _id: new ObjectId(intentId) }, { $set: { status } });
 
     return this.findPaymentIntent(intentId);
   }
 
   async findPaymentIntent(intentId: string) {
     const collection = this.db.collection('intents');
-    return collection.findOne({ _id: intentId });
+    return collection.findOne({ _id: new ObjectId(intentId) });
   }
 
 }

@@ -19,7 +19,7 @@ class Server extends BaseServer {
       return this.sendOk(res, user);
     });
 
-    this.app.post('/location/push', (req, res) => {
+    this.app.post('/location/push', async (req, res) => {
       const { driverId, lat, lon } = req.body;
       if (!driverId || !lat || !lon) {
         return this.sendFail(res, {
@@ -27,12 +27,12 @@ class Server extends BaseServer {
         });
       }
 
-      const user = Database.pushLocation(req.body);
+      const user = await Database.pushLocation(req.body);
       return this.sendOk(res, user);
     });
   }
 }
 
-const instance = new Server('user-service', PORT);
+const instance = new Server('trip-service', PORT);
 
 export { instance as Server };

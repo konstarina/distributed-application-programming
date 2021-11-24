@@ -39,7 +39,7 @@ class Server {
       this.addService(serviceName, serviceUri);
 
       res.json({ success: true });
-      console.log('Service registered successfully');
+      console.log(`Service ${serviceName} at ${serviceUri} registered successfully`);
     });
   }
 
