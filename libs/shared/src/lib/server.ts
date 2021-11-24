@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as express from 'express';
 import { Concurrency } from './concurrency';
 import * as morgan from 'morgan';
+import * as bodyParser from 'body-parser';
 
 
 const GATEWAY_URI = process.env.GATEWAY_URI || 'http://localhost:3333';
@@ -18,6 +19,7 @@ export class BaseServer {
   async init() {
 
     this.app.use(morgan('tiny'));
+    this.app.use(bodyParser.json());
     this.app.get('/api/status', (req, res) => {
       res.send('OK');
     });
@@ -28,6 +30,18 @@ export class BaseServer {
       }
 
       this.concurrencyManager.increment();
+
+      let alreadyEnded = false;
+      const handleEnd = () => {
+        if (!alreadyEnded) {
+          alreadyEnded = true;
+          this.concurrencyManager.decrement();
+        }
+        res.removeListener('finish', handleEnd);
+        res.removeListener('close', handleEnd);
+      };
+      res.once('finish', handleEnd);
+      res.once('close', handleEnd);
       next();
     });
 
@@ -38,10 +52,10 @@ export class BaseServer {
     });
     this.app.on('error', console.error);
 
-    this.app.use((req, res, next) => {
-      this.concurrencyManager.decrement();
-      next();
-    });
+    // this.app.use((req, res, next) => {
+    //   this.concurrencyManager.decrement();
+    //   next();
+    // });
 
     await this.registerItself();
   }

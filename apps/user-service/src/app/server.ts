@@ -19,7 +19,7 @@ class Server extends BaseServer {
       return this.sendOk(res, user);
     });
 
-    this.app.post('/api/user', (req, res) => {
+    this.app.post('/api/user', async (req, res) => {
       const { name, phoneNumber } = req.body;
       if (!name || !phoneNumber) {
         return this.sendFail(res, {
@@ -27,7 +27,7 @@ class Server extends BaseServer {
         });
       }
 
-      const user = Database.addUser(req.body);
+      const user = await Database.addUser(req.body);
       return this.sendOk(res, user);
     });
   }

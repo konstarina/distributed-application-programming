@@ -25,9 +25,16 @@ class Database {
     return collection.findOne({ _id: doc.insertedId });
   }
 
-  async findUser(criteria: { name?: string; phoneNumber?: string}) {
+  async findUser({ name, phoneNumber }: { name?: string; phoneNumber?: string}) {
     const collection = this.db.collection('users');
-    return collection.findOne(criteria);
+    const query: any = {};
+    if (name) {
+      query.name = name;
+    }
+    if (phoneNumber) {
+      query.phoneNumber = phoneNumber;
+    }
+    return collection.findOne(query);
   }
 
 }

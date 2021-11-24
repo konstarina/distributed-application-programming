@@ -1,8 +1,8 @@
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import axios from 'axios';
-import { createProxyMiddleware } from 'http-proxy-middleware';
-
+import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middleware';
+import { Cache } from './cache';
 
 const PORT = process.env.PORT || 3333;
 
@@ -14,8 +14,6 @@ class Server {
   app = express();
 
   async init() {
-    this.app.use(bodyParser.json());
-
     this.addListeners();
     this.startHealthCheck();
 
@@ -30,6 +28,10 @@ class Server {
       res.send('OK');
     });
 
+    this.app.use('/user', this.tryUseCache(), this.setupProxy('/user', 'user-service'));
+    this.app.use('/payment', this.tryUseCache(), this.setupProxy('/payment', 'payment-service'));
+    this.app.use('/trip', this.tryUseCache(), this.setupProxy('/trip', 'trip-service'));
+    this.app.use(bodyParser.json());
 
     this.app.post('/api/register-service', (req, res) => {
       const { serviceUri, serviceName } = req.body;
@@ -39,10 +41,23 @@ class Server {
       res.json({ success: true });
       console.log('Service registered successfully');
     });
+  }
 
-    this.app.use('/user', this.setupProxy('/user', 'user-service'));
-    this.app.use('/payment', this.setupProxy('/payment', 'payment-service'));
-    this.app.use('/trip', this.setupProxy('/trip', 'trip-service'));
+  private tryUseCache() {
+    return async function(req: express.Request, res: express.Response, next: () => void) {
+      if (req.method === 'GET') {
+        const cacheKey = req.originalUrl;
+        const data = await Cache.get(cacheKey);
+        if (data) {
+          return res.json({
+            success: true,
+            data
+          });
+        }
+      }
+
+      next();
+    }
   }
 
   private setupProxy(basePath: string, serviceName: string) {
@@ -57,7 +72,7 @@ class Server {
         }
 
         this.roundRobinCounters.set(serviceName, counter);
-        const serviceUrl = [...this.services.get(serviceName)][counter];
+        const serviceUrl = [...(this.services.get(serviceName) || [])][counter];
         return serviceUrl;
       },
       logLevel: 'debug',
@@ -68,7 +83,17 @@ class Server {
       onError: (err, req, res, target: any) => {
         const serviceUrlToRemove = `${target.protocol}//${target.host}`;
         this.removeService(serviceUrlToRemove);
-      }
+      },
+      selfHandleResponse: true,
+      onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+        const cacheKey = (req as any).originalUrl;
+        if (req.method === 'GET') {
+          const data = responseBuffer.toString();
+          await Cache.set(cacheKey, JSON.parse(data));
+        }
+
+        return responseBuffer;
+      })
     });
   }
   
