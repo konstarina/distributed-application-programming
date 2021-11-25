@@ -219,7 +219,25 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": null
+						"url": {
+							"raw": "http://localhost:3333/user/api/user?name=ion",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"user",
+								"api",
+								"user"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "ion"
+								}
+							]
+						}
 					},
 					"response": []
 				},
