@@ -69,10 +69,15 @@ class Server {
         const cacheKey = req.originalUrl;
         const data = await Cache.get(cacheKey);
         if (data) {
-          return res.json({
-            success: true,
-            data
-          });
+          if (typeof data === 'string') {
+            return res.send(data);
+          } else {
+            return res.json({
+              success: true,
+              data
+            });
+          }
+
         }
       }
 
@@ -143,7 +148,7 @@ class Server {
           const data = responseBuffer.toString();
           try {
             const json = JSON.parse(data);
-            await Cache.set(cacheKey, json);
+            await Cache.set(cacheKey, json.data);
           } catch (error) {
             await Cache.set(cacheKey, data);
           }
