@@ -15,6 +15,7 @@ class Database {
     console.log('Connected successfully to database');
   }
 
+  // client will send the payment intent and the amount
   async registerPaymentIntent(intent: {
     fingerprint: string,
     amount: string,
@@ -31,8 +32,11 @@ class Database {
     return collection.findOne({ _id: doc.insertedId });
   }
 
+  // update payment status
   async updateIntentStatus(intentId: string, status: string) {
     const collection = this.db.collection('intents');
+    // find and update one payment intent
+    // find by _id and use $set operator to update the status
     await collection.updateOne({ _id: new ObjectId(intentId) }, { $set: { status } });
 
     return this.findPaymentIntent(intentId);

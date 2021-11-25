@@ -6,11 +6,14 @@ class Database {
 
   client = new MongoClient(uri);
 
+  // get database instance
   get db() {
     return this.client.db();
   }
 
+  // it is called on application startup
   async init() {
+    // establish actual connection to the database
     await this.client.connect();
     console.log('Connected successfully to database');
   }
@@ -19,14 +22,21 @@ class Database {
     name: string;
     phoneNumber: string;
   }) {
+    // select collection of name users
+    // it will create it if it does not exist
     const collection = this.db.collection('users');
+    // insert the new user and get a reference to the inserted document
     const doc = await collection.insertOne(user);
 
+    // return the newly inserted document
     return collection.findOne({ _id: doc.insertedId });
   }
 
+
   async findUser({ name, phoneNumber }: { name?: string; phoneNumber?: string}) {
+    // select collection of name users
     const collection = this.db.collection('users');
+    // create the actual query object
     const query: any = {};
     if (name) {
       query.name = name;

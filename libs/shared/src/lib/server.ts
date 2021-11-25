@@ -21,23 +21,32 @@ export class BaseServer {
 
     this.app.use(morgan('tiny'));
     this.app.use(bodyParser.json());
+    // this is called by gateway to check if the service is alive
+    // is considered to be internal API
     this.app.get('/api/status', (req, res) => {
       res.send('OK');
     });
 
+    // middleware to limit concurrency
     this.app.use((req, res, next) => {
+      // check if limit of concurrency is reached
       if (this.concurrencyManager.limitReached()) {
         return res.status(429).send('Too many requests');
       }
 
+      // We accept this request and increment the task counter
       this.concurrencyManager.increment();
 
+      // simple logic to decrement the task counter only once
       let alreadyEnded = false;
+      // callacack that is called when the request is finished or closed
       const handleEnd = () => {
         if (!alreadyEnded) {
           alreadyEnded = true;
+          // only decrement once
           this.concurrencyManager.decrement();
         }
+        // remove listener to prevent memory leaks
         res.removeListener('finish', handleEnd);
         res.removeListener('close', handleEnd);
       };
@@ -61,17 +70,23 @@ export class BaseServer {
     await this.registerItself();
   }
 
+  // this is designed to be overridden
   addListeners() {
     throw new Error('Not implemented');
   }
 
+  // service discovery component
+  // it will call an internal API from gateway service
   private registerItself() {
+    // axios = http requests library
     return axios.post(`${GATEWAY_URI}/api/register-service`, {
       serviceName: this.serviceName,
       serviceUri: `http://${SELF_NAME}:${this.port}`
     });
   }
 
+  // helper methods to send back success response
+  // best to have a common implementation for all services
   sendOk(res: express.Response, data?: any) {
     res.json({
       success: true,
@@ -79,6 +94,7 @@ export class BaseServer {
     });
   }
 
+  // helper methods to send back fail response
   sendFail(res: express.Response, data?: any) {
     res.status(400).json({
       success: false,

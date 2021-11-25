@@ -19,7 +19,7 @@ class Server extends BaseServer {
         amount,
         currency,
         userId,
-        userAgent: req.headers['user-agent']
+        userAgent: req.headers['user-agent'] // also save client user agent 
       });
       return this.sendOk(res, user);
     });
@@ -37,7 +37,7 @@ class Server extends BaseServer {
     });
 
     this.app.get('/api/payment/intent', async (req, res) => {
-      const { intentId } = req.body;
+      const intentId = req.query.intentId as string;
       if (!intentId) {
         return this.sendFail(res, {
           message: 'Please provide intentId'

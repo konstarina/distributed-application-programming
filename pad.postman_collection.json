@@ -308,6 +308,108 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "register payment intent",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fingerprint\": \"aksjdajhs\",\n  \"amount\": \"102\",\n  \"currency\": \"USD\",\n  \"userId\": \"abc\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3333/payment/api/payment/register-intent",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"payment",
+								"api",
+								"payment",
+								"register-intent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "payment confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"intentId\": \"619ff1901d38224de22886cf\",\n  \"paymentStatus\": \"success\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3333/payment/api/payment/confirm",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"payment",
+								"api",
+								"payment",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get payment intent",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"intentId\": \"619e98c8f70047a233702e5d\",\n  \"paymentStatus\": \"success\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3333/payment/api/payment/intent?intentId=619ff1901d38224de22886cf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"payment",
+								"api",
+								"payment",
+								"intent"
+							],
+							"query": [
+								{
+									"key": "intentId",
+									"value": "619ff1901d38224de22886cf"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

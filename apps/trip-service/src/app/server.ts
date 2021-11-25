@@ -15,8 +15,8 @@ class Server extends BaseServer {
         });
       }
 
-      const user = await Database.getDriverLocation(driverId);
-      return this.sendOk(res, user);
+      const location = await Database.getDriverLocation(driverId);
+      return this.sendOk(res, location);
     });
 
     this.app.post('/location/push', async (req, res) => {
@@ -27,8 +27,8 @@ class Server extends BaseServer {
         });
       }
 
-      const user = await Database.pushLocation(req.body);
-      return this.sendOk(res, user);
+      const location = await Database.pushLocation(req.body);
+      return this.sendOk(res, location);
     });
   }
 }

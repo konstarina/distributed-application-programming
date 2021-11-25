@@ -15,6 +15,8 @@ class Database {
     console.log('Connected successfully to database');
   }
 
+  // drivers will send their latest location once in 5 seconds for example
+  // we will store it in the database and we can use it to calculate the distance and the path
   async pushLocation(payload: {
     driverId: string;
     lat: number;
@@ -26,11 +28,12 @@ class Database {
     return collection.findOne({ _id: doc.insertedId });
   }
 
+  // get the latest known location of a driver
   async getDriverLocation(driverId: string) {
     const collection = this.db.collection('location');
     return collection.findOne({
       driverId
-    }, { sort: { createdAt: -1 } });
+    }, { sort: { createdAt: -1 } }); // sort order is descending
   }
 
 }
