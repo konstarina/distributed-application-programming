@@ -21,13 +21,21 @@ Main implemented services will be:
 
 ### API endpoints
 GET /api/status - to check if service is alive
+
 GET /api/user
+
 POST /api/user
+
 POST /api/status
+
 POST /api/register-service - it will call an internal API from gateway service
+
 GET /trip/location/get
+
 POST /trip/location/push
+
 POST /payment/register-intent
+
 POST /payment/confirm
 
 ## A list of technologies to be used
