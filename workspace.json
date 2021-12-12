@@ -154,6 +154,57 @@
         }
       }
     },
+    "saga-orchestrator": {
+      "root": "apps/saga-orchestrator",
+      "sourceRoot": "apps/saga-orchestrator/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/saga-orchestrator",
+            "main": "apps/saga-orchestrator/src/main.ts",
+            "tsConfig": "apps/saga-orchestrator/tsconfig.app.json",
+            "assets": ["apps/saga-orchestrator/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/saga-orchestrator/src/environments/environment.ts",
+                  "with": "apps/saga-orchestrator/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "saga-orchestrator:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/saga-orchestrator/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/saga-orchestrator"],
+          "options": {
+            "jestConfig": "apps/saga-orchestrator/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
     "shared": {
       "root": "libs/shared",
       "sourceRoot": "libs/shared/src",

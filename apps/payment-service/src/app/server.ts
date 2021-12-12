@@ -33,6 +33,7 @@ class Server extends BaseServer {
       }
 
       const status = await Database.updateIntentStatus(intentId, paymentStatus);
+      this.redis.emit('PAYMENT_CONFIRMED', { intentId, paymentStatus });
       return this.sendOk(res, status);
     });
 

@@ -30,6 +30,11 @@ class Server extends BaseServer {
       const location = await Database.pushLocation(req.body);
       return this.sendOk(res, location);
     });
+
+    this.redis.events.on('END_RIDE', (payload) => {
+      console.log('An event of type END_RIDE was received from saga orchestrator', payload);
+      // TODO add implementation
+    });
   }
 }
 
