@@ -2,6 +2,7 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import axios from 'axios';
+import * as prometheusMiddleware from 'express-prometheus-middleware';
 import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middleware';
 import { Cache } from './cache';
 
@@ -31,6 +32,7 @@ class Server {
 
   private addListeners() {
     this.app.use(morgan('tiny'));
+    this.app.use(prometheusMiddleware());
 
     // this one is probably a public method to get the service status
     this.app.get('/api/status', (req, res) => {

@@ -12,6 +12,8 @@ services:
     ports:
     # host port : container port
       - 27017:27017
+    networks:
+      - internal
 
 
   cache:
@@ -25,6 +27,8 @@ services:
       PORT: 4444
     depends_on:
       - mongo
+    networks:
+      - internal
 
   gateway:
     container_name: lab1-gateway
@@ -41,6 +45,8 @@ services:
     depends_on:
       - mongo
       - cache
+    networks:
+      - internal
 
   user-service:
     container_name: lab1-user-service
@@ -58,6 +64,8 @@ services:
       - mongo
       - cache
       - gateway
+    networks:
+      - internal
 
   trip-service:
     container_name: lab1-trip-service
@@ -75,6 +83,8 @@ services:
       - mongo
       - cache
       - gateway
+    networks:
+      - internal
 
   payment-service:
     container_name: lab1-payment-service
@@ -92,3 +102,9 @@ services:
       - mongo
       - cache
       - gateway
+    networks:
+      - internal
+
+networks:
+  internal:
+    name: custom_network

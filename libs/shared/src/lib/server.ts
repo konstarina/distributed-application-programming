@@ -3,6 +3,7 @@ import * as express from 'express';
 import { Concurrency } from './concurrency';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
+import * as prometheusMiddleware from 'express-prometheus-middleware';
 
 
 const GATEWAY_URI = process.env.GATEWAY_URI || 'http://localhost:3333';
@@ -21,6 +22,7 @@ export class BaseServer {
 
     this.app.use(morgan('tiny'));
     this.app.use(bodyParser.json());
+    this.app.use(prometheusMiddleware());
     // this is called by gateway to check if the service is alive
     // is considered to be internal API
     this.app.get('/api/status', (req, res) => {
