@@ -88,6 +88,32 @@ class Server {
   }
 
   private setupProxy(basePath: string, serviceName: string) {
+    return async (req: express.Request, res: express.Response, next: () => void) => {
+      const servicesLength = this.services.get(serviceName)?.size || 0;
+      // We will try to send at least one request to all registered services
+      // If they will all fail, trip and send error
+      let retries = servicesLength - 1;
+
+      function retry() {
+        return proxyMiddleware(req, res, next);
+      }
+
+      // create an instance of proxy middleware with custom error handler and retry logic
+      const proxyMiddleware = this.setupProxyMiddleware(basePath, serviceName, () => {
+        if (retries <= 0) {
+          return res.status(500).send('No service is able to process the request');
+        }
+
+        console.log('retrying another service');
+        retries--;
+        retry();
+      });
+
+      retry();
+    };
+  }
+
+  private setupProxyMiddleware(basePath: string, serviceName: string, onError: () => void) {
     return createProxyMiddleware({
       // this is called when a new request comes in
       // this function is used to select the base path of the request url
@@ -132,8 +158,9 @@ class Server {
 
       // gets called when we have an error of any kind
       onError: (err, req, res, target: any) => {
-        const serviceUrlToRemove = `${target.protocol}//${target.host}`;
-        this.removeService(serviceUrlToRemove);
+        // const serviceUrlToRemove = `${target.protocol}//${target.host}`;
+        // this.removeService(serviceUrlToRemove);
+        onError();
       },
 
       // used to intercept the response from the service
