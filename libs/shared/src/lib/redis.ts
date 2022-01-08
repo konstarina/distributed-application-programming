@@ -32,7 +32,10 @@ export class Redis {
       try {
         const parsedMsg = JSON.parse(msg);
         if (parsedMsg.type) {
+          // emit this event for saga-orchestrator
           this.events.emit('saga-event', parsedMsg);
+          // emit this event to be captured by the service itself
+          this.events.emit(parsedMsg.type, parsedMsg.value);
         }
       } catch (error) {
         console.warn('[REDIS pubsub ERROR]', error);

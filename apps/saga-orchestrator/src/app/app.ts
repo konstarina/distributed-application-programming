@@ -12,7 +12,7 @@ export class App {
 
     this.redis.events.on('saga-event', (payload: any) => {
       console.log('saga event', payload);
-      this.handleSagaEvent(payload.type, payload.payload);
+      this.handleSagaEvent(payload.type, payload.value);
     });
   }
 
