@@ -72,11 +72,28 @@ services:
       - redis
     networks:
       - internal
+  # cache:
+  #   container_name: lab1-cache
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.cache
+  #   ports:
+  #     - 4444:4444
+  #   environment:
+  #     PORT: 4444
+  #   depends_on:
+  #     - mongo1
+  #     - mongo2
+  #     - mongo3
+  #     - mongo-setup
+  #   networks:
+  #     - internal
+
   cache:
-    container_name: lab1-cache
+    container_name: lab1-cache-python
     build:
       context: .
-      dockerfile: Dockerfile.cache
+      dockerfile: Dockerfile.cache-python
     ports:
       - 4444:4444
     environment:
