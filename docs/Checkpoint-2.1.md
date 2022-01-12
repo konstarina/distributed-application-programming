@@ -9,6 +9,8 @@ A saga is a sequence of local transactions. Each local transaction updates the d
 We will implement 2 saga transactions:
 * Saga event of type: 'PAYMENT_CONFIRMED' that will in its order trigger event: 'END_RIDE' in case of successful payment;
 * Saga event of type:  'USER_CREATED' triggers even of type: 'SEND_EMAIL'.
+
+
 Our Yandex-like Taxi Application uses the Orchestration-based saga coordination in Trip Service and Payment Service.
 
 ```
@@ -17,8 +19,10 @@ docker-compose logs -f --tail 10 lab1-saga-orchestrator
 
 - Database redundancy/replication + failover. Service instances connect to different DB replicas;
 Replication provides redundancy and increases data availability. In previous lab we had database per service pattern.
+
 **Replication rules:**
 In this one we will have 3 mongod instances that will maintain the same data set: mongo1, mongo2, mongo3. One of the members goes PRIMARY having the priority number 2, the node that receives _write_ and _read_ all operations, two of other members SECONDARY with priority number 0 that replicate the primary's data sets. 
+
 **Failover mechanism** If to some reason a failover of the primary database, there is a mechanisms of elections implemented. One of the secondary databases becomes PRIMARY.
 - Prometheus + Grafana for logging added to all services
 # The Gateway
