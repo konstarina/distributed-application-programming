@@ -6,7 +6,15 @@
 Service nodes are the ones that do the work a client is interested in. They receive tasks, process them and send back responses. Processing requests is usually costly so we imply the help of gateways and caches. Each service has a database.
 - Long-running saga transactions;
 A saga is a sequence of local transactions. Each local transaction updates the database and publishes a message or event to trigger the next local transaction in the saga. If a local transaction fails because it violates a business rule then the saga executes a series of compensating transactions that undo the changes that were made by the preceding local transactions.
-Our Yandex-like Taxi Application uses the Orchestration-based saga coordination in Trip Service and Payment Service
+We will implement 2 saga transactions:
+* Saga event of type: 'PAYMENT_CONFIRMED' that will in its order trigger event: 'END_RIDE' in case of successful payment;
+* Saga event of type:  'USER_CREATED' triggers even of type: 'SEND_EMAIL'.
+Our Yandex-like Taxi Application uses the Orchestration-based saga coordination in Trip Service and Payment Service.
+
+```
+docker-compose logs -f --tail 10 lab1-saga-orchestrator
+```
+
 - Database redundancy/replication + failover. Service instances connect to different DB replicas;
 Replication provides redundancy and increases data availability. In previous lab we had database per service pattern.
 **Replication rules:**
