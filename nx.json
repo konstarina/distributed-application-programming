@@ -36,6 +36,9 @@
     "payment-service": {
       "tags": []
     },
+    "saga-orchestrator": {
+      "tags": []
+    },
     "shared": {
       "tags": []
     },

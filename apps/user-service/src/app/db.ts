@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const uri = `mongodb://admin:pass@${process.env.MONGO_URL || 'localhost'}:27017/user-service?maxPoolSize=20&w=majority&authSource=admin`;
+const uri = `mongodb://${process.env.MONGO_URL || 'localhost:27017'}/user-service?maxPoolSize=20&w=majority&replicaSet=rs0`;
 
 class Database {
 

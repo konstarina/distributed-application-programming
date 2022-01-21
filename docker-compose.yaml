@@ -2,29 +2,109 @@ version: '3.1'
 
 services:
 
-  mongo:
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
     image: mongo:5.0.3
-    container_name: lab1-mongo
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: pass
+    expose:
+      - 27017
+    networks:
+      - internal
     ports:
-    # host port : container port
       - 27017:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db" ]
+  mongo2:
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo:5.0.3
+    expose:
+      - 27017
+    networks:
+      - internal
+    ports:
+      - 27018:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db" ]
+  mongo3:
+    hostname: mongo3
+    container_name: mongo3
+    image: mongo:5.0.3
+    expose:
+      - 27017
+    networks:
+      - internal
+    ports:
+      - 27019:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db" ]
 
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo:5.0.3
+    restart: on-failure
+    networks:
+      - internal
+    volumes:
+      - ./tools/mongo:/scripts
+    entrypoint: [ "/scripts/setup.sh" ] # Make sure this file exists (see below for the setup.sh)
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
 
-  cache:
-    container_name: lab1-cache
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - internal
+    ports:
+      - 6379:6379
+
+  saga-orchestrator:
+    container_name: lab1-saga-orchestrator
     build:
       context: .
-      dockerfile: Dockerfile.cache
+      dockerfile: Dockerfile.saga-orchestrator
+    environment:
+      REDIS_HOST: redis:6379
+    depends_on:
+      - redis
+    networks:
+      - internal
+  # cache:
+  #   container_name: lab1-cache
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.cache
+  #   ports:
+  #     - 4444:4444
+  #   environment:
+  #     PORT: 4444
+  #   depends_on:
+  #     - mongo1
+  #     - mongo2
+  #     - mongo3
+  #     - mongo-setup
+  #   networks:
+  #     - internal
+
+  cache:
+    container_name: lab1-cache-python
+    build:
+      context: .
+      dockerfile: Dockerfile.cache-python
     ports:
       - 4444:4444
     environment:
       PORT: 4444
     depends_on:
-      - mongo
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-setup
+    networks:
+      - internal
 
   gateway:
     container_name: lab1-gateway
@@ -39,8 +119,13 @@ services:
       # cache will be resolved to the actual cache service above
       CACHE_URI: http://cache:4444
     depends_on:
-      - mongo
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-setup
       - cache
+    networks:
+      - internal
 
   user-service:
     container_name: lab1-user-service
@@ -51,13 +136,20 @@ services:
       - 3000:3000
     environment:
       PORT: 3000
-      MONGO_URL: mongo
+      MONGO_URL: mongo1:27017,mongo2:27017,mongo3:27017
+      REDIS_HOST: redis:6379
       GATEWAY_URI: http://gateway:3333
       SELF_NAME: user-service
     depends_on:
-      - mongo
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-setup
       - cache
       - gateway
+      - saga-orchestrator
+    networks:
+      - internal
 
   trip-service:
     container_name: lab1-trip-service
@@ -68,13 +160,20 @@ services:
       - 3001:3001
     environment:
       PORT: 3001
-      MONGO_URL: mongo
+      MONGO_URL: mongo1:27017,mongo2:27017,mongo3:27017
+      REDIS_HOST: redis:6379
       GATEWAY_URI: http://gateway:3333
       SELF_NAME: trip-service
     depends_on:
-      - mongo
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-setup
       - cache
       - gateway
+      - saga-orchestrator
+    networks:
+      - internal
 
   payment-service:
     container_name: lab1-payment-service
@@ -85,10 +184,21 @@ services:
       - 3002:3002
     environment:
       PORT: 3002
-      MONGO_URL: mongo
+      MONGO_URL: mongo1:27017,mongo2:27017,mongo3:27017
+      REDIS_HOST: redis:6379
       GATEWAY_URI: http://gateway:3333
       SELF_NAME: payment-service
     depends_on:
-      - mongo
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-setup
       - cache
       - gateway
+      - saga-orchestrator
+    networks:
+      - internal
+
+networks:
+  internal:
+    name: custom_network

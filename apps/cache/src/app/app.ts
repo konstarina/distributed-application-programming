@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
+import * as prometheusMiddleware from 'express-prometheus-middleware';
 
 const PORT = process.env.PORT || 4444;
 const CACHE_TTL = 5000; // 5 seconds;
@@ -19,6 +20,7 @@ export class App {
   init() {
     this.app.use(morgan('tiny')); // http logging library
     this.app.use(bodyParser.json()); // parse json in post/put requests
+    this.app.use(prometheusMiddleware());
     // register a health check endpoint
     this.app.get('/api/status', (req, res) => {
       res.send('OK');

@@ -34,6 +34,7 @@ class Server extends BaseServer {
       }
 
       const user = await Database.addUser(req.body);
+      this.redis.emit('USER_CREATED', { user });
       return this.sendOk(res, user);
     });
   }

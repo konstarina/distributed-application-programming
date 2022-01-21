@@ -3,14 +3,18 @@ import * as express from 'express';
 import { Concurrency } from './concurrency';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
+import * as prometheusMiddleware from 'express-prometheus-middleware';
+import { Redis } from './redis';
 
 
 const GATEWAY_URI = process.env.GATEWAY_URI || 'http://localhost:3333';
 const SELF_NAME = process.env.SELF_NAME || 'localhost';
+const REDIS_HOST = process.env.REDIS_HOST || 'localhost:6379';
 
 export class BaseServer {
   private concurrencyManager = new Concurrency(5);
   app = express();
+  redis = new Redis(REDIS_HOST);
 
   constructor(
     private serviceName: string,
@@ -18,9 +22,11 @@ export class BaseServer {
   ) {}
 
   async init() {
+    await this.redis.init();
 
     this.app.use(morgan('tiny'));
     this.app.use(bodyParser.json());
+    this.app.use(prometheusMiddleware());
     // this is called by gateway to check if the service is alive
     // is considered to be internal API
     this.app.get('/api/status', (req, res) => {
